@@ -16,7 +16,9 @@ func main() {
 
 	server.POST("/events", createEvent)
 	server.GET("/events", getEvents)
-	server.DELETE("event/:id", deleteEventById)
+
+	server.GET("/event/:id", getEventById)
+	server.DELETE("/event/:id", deleteEventById)
 
 	server.Run(":8080")
 }
@@ -45,6 +47,24 @@ func getEvents(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": events})
+}
+
+func getEventById(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "ID param could not be parsed"})
+		return
+	}
+
+	event, err := models.GetEventById(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get item with id: '" + idParam + "'."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": *event})
+
 }
 
 func deleteEventById(ctx *gin.Context) {
