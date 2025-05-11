@@ -38,6 +38,10 @@ func createEvent(ctx *gin.Context) {
 }
 
 func getEvents(ctx *gin.Context) {
-	events := models.GetAllEvents()
+	events, err := models.GetAllEvents()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get events from datbase"})
+		return
+	}
 	ctx.JSON(http.StatusOK, gin.H{"data": events})
 }
