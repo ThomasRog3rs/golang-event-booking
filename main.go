@@ -30,7 +30,6 @@ func createEvent(ctx *gin.Context) {
 	}
 
 	//dummy ids for now
-	event.ID = 1
 	event.UserID = 1
 
 	event.Save()
