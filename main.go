@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"example.com/rest-api/db"
 	"example.com/rest-api/models"
@@ -15,6 +16,7 @@ func main() {
 
 	server.POST("/events", createEvent)
 	server.GET("/events", getEvents)
+	server.DELETE("event/:id", deleteEventById)
 
 	server.Run(":8080")
 }
@@ -43,4 +45,21 @@ func getEvents(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": events})
+}
+
+func deleteEventById(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "ID param could not be parsed"})
+		return
+	}
+
+	err = models.DeleteEventById(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to delete item with id: '" + idParam + "'."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Deleted item with id: '" + idParam + "'."})
 }
